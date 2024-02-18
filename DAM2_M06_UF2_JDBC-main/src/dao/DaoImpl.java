@@ -17,7 +17,13 @@ public class DaoImpl implements Dao{
     private static final String GET_CARDS = "SELECT * FROM card LEFT JOIN game ON card.id = game.id WHERE id_player = ?? AND game.id IS NULL";
     private static final String GET_IDCARD= "SELECT ifnull (max(id), 0) + 1 as id FROM card WHERE id_player =  ?? ";
     private static final String INSERT_CARDS = "INSERT INTO card (id_player, number, color) VALUES (??, '##', '€€')";
-
+    private static final String GET_LAST_CARD= "SELECT id_card FROM game WHERE id = (SELECT MAX (id) FROM game)";
+    private static final String GET_CARD= "SELECT * FROM card WHERE id = ??";
+    private static final String DELETE_CARD= "DELETE FROM game WHERE id_card = ?";
+    private static final String CLEAR_DECK= "DELETE FROM card WHERE id_player = ?";
+    private static final String UPDATE_VICTORIES= "UPDATE player SET victories = victories + 1 WHERE id = ?";
+    private static final String UPDATE_GAMES= "UPDATE player SET games = games + 1 WHERE id = ?";
+    private static final String SAVE_GAME= "INSERT INTO game (id_card) VALUES (?)";
     @Override
     public void connect() throws SQLException {
         con = DriverManager.getConnection("jdbc:mysql://localhost:3306/Base_Datos_Java?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", "Pxios7131");
@@ -50,14 +56,16 @@ public class DaoImpl implements Dao{
     public Card getLastCard() throws SQLException {
         String select = GET_LAST_CARD;
         int  id = 0;
+        Card lastCard = null;
         try(PreparedStatement ps = con.prepareStatement(select)){
             try(ResultSet rs = ps.executeQuery()){
                 if(rs.next()){
                     id = rs.getInt("id_card");
-                    getCard(id);
+                    lastCard = getCard(id);
                 }
             }
         }
+        return lastCard;
     }
 
     @Override
@@ -105,12 +113,30 @@ public class DaoImpl implements Dao{
 
     @Override
     public Card getCard(int cardId) throws SQLException {
-        return null;
+        String select = GET_CARD;
+        Card card = null;
+        select = select.replace("??", ""+cardId);
+        try(PreparedStatement ps = con.prepareStatement(select)){
+            try(ResultSet rs = ps.executeQuery()){
+                if(rs.next()){
+                    int id = rs.getInt("id");
+                    int id_player = rs.getInt("id_player");
+                    String number = rs.getString("number");
+                    String color = rs.getString("color");
+                    card = new Card(id,number, color, id_player);
+                }
+            }
+        }
+        return card;
     }
 
     @Override
     public void saveGame(Card card) throws SQLException {
-
+        String insert = SAVE_GAME;
+        try (PreparedStatement ps = con.prepareStatement(insert)){
+            ps.setInt(1, card.getId());
+            ps.executeUpdate();
+        }
     }
 
     @Override
@@ -127,21 +153,37 @@ public class DaoImpl implements Dao{
 
     @Override
     public void deleteCard(Card card) throws SQLException {
-
+        String delete = DELETE_CARD;
+        try(PreparedStatement ps = con.prepareStatement(delete)){
+            ps.setInt(1, card.getId());
+            ps.executeUpdate();
+        }
     }
 
     @Override
     public void clearDeck(int playerId) throws SQLException {
-
+        String delete = CLEAR_DECK;
+        try(PreparedStatement ps = con.prepareStatement(delete)){
+            ps.setInt(1, playerId);
+            ps.executeUpdate();
+        }
     }
 
     @Override
     public void addVictories(int playerId) throws SQLException {
-
+        String update = UPDATE_VICTORIES;
+        try(PreparedStatement ps = con.prepareStatement(update)){
+            ps.setInt(1, playerId);
+            ps.executeUpdate();
+        }
     }
 
     @Override
     public void addGames(int playerId) throws SQLException {
-
+        String update = UPDATE_GAMES;
+        try(PreparedStatement ps = con.prepareStatement(update)){
+            ps.setInt(1, playerId);
+            ps.executeUpdate();
+        }
     }
 }

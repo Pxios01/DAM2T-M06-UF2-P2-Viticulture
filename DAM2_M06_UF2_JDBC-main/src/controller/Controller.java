@@ -1,15 +1,14 @@
 package controller;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Scanner;
-
 import dao.DaoImpl;
 import model.Card;
 import model.Player;
 import utils.Color;
-import utils.Constants;
 import utils.Number;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 /**
  * 

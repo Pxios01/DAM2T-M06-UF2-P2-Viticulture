@@ -2,7 +2,6 @@ package model;
 
 import utils.Color;
 import utils.Number;
-import utils.Constants;
 
 public class Card {
 	

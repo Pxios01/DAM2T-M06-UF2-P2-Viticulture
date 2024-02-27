@@ -17,7 +17,7 @@ public class DaoImpl implements Dao{
     private static final String GET_CARDS = "SELECT * FROM card LEFT JOIN game ON card.id = game.id WHERE id_player = ?? AND game.id IS NULL";
     private static final String GET_IDCARD= "SELECT ifnull (max(id), 0) + 1 as id FROM card WHERE id_player =  ?? ";
     private static final String INSERT_CARDS = "INSERT INTO card (id_player, number, color) VALUES (??, '##', '€€')";
-    private static final String GET_LAST_CARD= "SELECT id_card FROM game WHERE id = (SELECT MAX (id) FROM game)";
+    private static final String GET_LAST_CARD= "SELECT id_card FROM game WHERE id = (SELECT MAX(id) FROM game)";
     private static final String GET_CARD= "SELECT * FROM card WHERE id = ??";
     private static final String DELETE_CARD= "DELETE FROM game WHERE id_card = ?";
     private static final String CLEAR_DECK= "DELETE FROM card WHERE id_player = ?";
@@ -31,7 +31,9 @@ public class DaoImpl implements Dao{
 
     @Override
     public void disconnect() throws SQLException {
+        if(con != null){
         con.close();
+        }
     }
 
     @Override
@@ -55,14 +57,25 @@ public class DaoImpl implements Dao{
     @Override
     public Card getLastCard() throws SQLException {
         String select = GET_LAST_CARD;
-        int  id = 0;
+        String select2 = "SELECT * FROM card WHERE id = ?";
         Card lastCard = null;
         try(PreparedStatement ps = con.prepareStatement(select)){
             try(ResultSet rs = ps.executeQuery()){
-                if(rs.next()){
-                    id = rs.getInt("id_card");
-                    lastCard = getCard(id);
-                }
+               if(rs.next()){
+                   int id_card = rs.getInt("id_card");
+                   try(PreparedStatement ps2 = con.prepareStatement(select2)){
+                       ps2.setInt(1, id_card);
+                       try(ResultSet rs2 = ps2.executeQuery()){
+                       if(rs2.next()){
+                           int id = rs2.getInt("id");
+                           int idPlayer = rs2.getInt("id_player");
+                           String number = rs2.getString("number");
+                           String color = rs2.getString("color");
+                           lastCard = new Card(id, number, color, idPlayer);
+                       }
+                       }
+                   }
+               }
             }
         }
         return lastCard;

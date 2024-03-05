@@ -17,9 +17,10 @@ import javax.persistence.Table;
 @Entity
 @Table(name= "campo")
 public class Campo {
+
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	@Column(name = "id", unique = true, nullable = true)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(name = "id", unique = true, nullable = false)
 	private int id_campo;
 
 	@OneToMany

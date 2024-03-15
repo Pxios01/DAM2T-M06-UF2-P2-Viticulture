@@ -20,6 +20,8 @@ public class Vid {
 	private TipoVid vid;
 	@Column(name = "cantidad", nullable = true)
 	private int cantidad;
+	@Column(name = "precio", nullable = true)
+	private double precio = 0f;
 	
 	public Vid() {}
 		

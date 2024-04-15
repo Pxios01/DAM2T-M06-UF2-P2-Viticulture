@@ -20,8 +20,8 @@ public class Manager {
 	private ArrayList<Entrada> entradas;
 	private Session session;
 	private Transaction tx;
-	private List<Bodega> b;
-	private List<Campo> c;
+	private Bodega b;
+	private Campo c;
 
 	private Manager () {
 		this.entradas = new ArrayList<>();
@@ -33,11 +33,10 @@ public class Manager {
 		}
 		return manager;
 	}
-
+	
 	private void createSession() {
-		Configuration configuration = new Configuration().configure("hibernate.cfg.xml");
 		org.hibernate.SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
-		session = sessionFactory.openSession();
+    	session = sessionFactory.openSession();
 	}
 
 	public void init() {
@@ -45,6 +44,7 @@ public class Manager {
 		getEntrada();
 		manageActions();
 		showAllCampos();
+		showCantidadVidByBodega();
 		session.close();
 	}
 
@@ -79,6 +79,7 @@ public class Manager {
 
 	private void vendimia() {
 		this.b.getVids().addAll(this.c.getVids());
+		this.b.setLlena(true);
 		
 		tx = session.beginTransaction();
 		session.save(b);
@@ -135,6 +136,19 @@ public class Manager {
 		}
 		tx.commit();
 	}
+	
+	private void showCantidadVidByBodega() {
+		tx = session.beginTransaction();
+		Query q = session.createQuery("select v from Vid v group by bodega_id");
+		List<Vid> list = q.list();
+		for (Vid v : list) {
+			System.out.println(v);
+		}
+		tx.commit();
+		
+	}
+	
+
 
 	
 }

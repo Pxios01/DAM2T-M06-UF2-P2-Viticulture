@@ -9,6 +9,8 @@ import javax.persistence.Table;
 
 import utils.TipoVid;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name= "vid")
 public class Vid {
@@ -20,12 +22,15 @@ public class Vid {
 	private TipoVid vid;
 	@Column(name = "cantidad", nullable = true)
 	private int cantidad;
-	
+
+	@Column(name = "price", nullable = false)
+	private BigDecimal price;
 	public Vid() {}
 		
-	public Vid(TipoVid vid, int cantidad) {
+	public Vid(TipoVid vid, int cantidad, BigDecimal price) {
 		this.vid = vid;
 		this.cantidad = cantidad;
+		this.price = price;
 	}
 	public int getId() {
 		return this.id;
@@ -36,8 +41,9 @@ public class Vid {
 	public int getCantidad() {
 		return cantidad;
 	}
+	public BigDecimal getPrice(){return price;}
 	@Override
 	public String toString() {
-		return "Vid [vid=" + (vid.equals("0") ? "blanca" : "negra")  + ", cantidad=" + cantidad + "]";
+		return "Vid [vid=" + (vid.equals("0") ? "blanca" : "negra")  + ", cantidad=" + cantidad + ", precio= "+ price +" ]";
 	}
 }
